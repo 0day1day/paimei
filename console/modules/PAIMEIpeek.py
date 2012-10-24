@@ -432,7 +432,7 @@ class PAIMEIpeek(wx.Panel):
 
         mysql = self.main_frame.mysql
 
-        if not mysql:
+        if (not mysql) or (mysql is None):
             self.err("No available connection to MySQL server.")
             return
 
