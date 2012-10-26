@@ -16,9 +16,9 @@
 #
 
 '''
-@author:       Pedram Amini
-@license:      GNU General Public License 2.0 or later
-@contact:      pedram.amini@gmail.com
+@author:	   Pedram Amini
+@license:	  GNU General Public License 2.0 or later
+@contact:	  pedram.amini@gmail.com
 @organization: www.openrce.org
 '''
 
@@ -32,65 +32,72 @@ from pydbg import *
 import utils
 
 class ProcessListCtrl (wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
-    '''
-    Our custom list control containing a sortable list of PIDs and process names.
-    '''
+	'''
+	Our custom list control containing a sortable list of PIDs and process names.
+	'''
 
-    FUNCTIONS    = utils.process_stalker.FUNCTIONS
-    BASIC_BLOCKS = utils.process_stalker.BASIC_BLOCKS
+	FUNCTIONS	= utils.process_stalker.FUNCTIONS
+	BASIC_BLOCKS = utils.process_stalker.BASIC_BLOCKS
 
-    def __init__(self, parent, id, pos=None, size=None, style=None, top=None):
-        wx.ListCtrl.__init__(self, parent, id, style=wx.LC_REPORT | wx.SIMPLE_BORDER | wx.LC_HRULES )
-        self.top                 = top
-        self.selected_pid        = 0
-        self.selected_proc       = None
+	def __init__(self, parent, id, pos=None, size=None, style=None, top=None):
+		wx.ListCtrl.__init__(self, parent, id, style=wx.LC_REPORT | wx.SIMPLE_BORDER | wx.LC_HRULES )
+		self.top				 = top
+		self.selected_pid		= 0
+		self.selected_proc	   = None
 
-        ListCtrlAutoWidthMixin.__init__(self)
+		ListCtrlAutoWidthMixin.__init__(self)
 
-        self.items_sort_map = {}
-        self.itemDataMap    = self.items_sort_map
+		self.items_sort_map = {}
+		self.itemDataMap	= self.items_sort_map
 
-        ColumnSorterMixin.__init__(self, 2)
+		ColumnSorterMixin.__init__(self, 3)
 
-        self.InsertColumn(0, "PID")
-        self.InsertColumn(1, "Process")
-
-
-    ####################################################################################################################
-    def GetListCtrl (self):
-        '''
-        Used by the ColumnSorterMixin, see wx/lib/mixins/listctrl.py
-        '''
-
-        return self
+		self.InsertColumn(0, "PID")
+		self.InsertColumn(1, "Process")
+		self.InsertColumn(2, "Ports")
 
 
-    ####################################################################################################################
-    def on_retrieve_list (self, event):
-        pydbg = self.top.main_frame.pydbg
+	####################################################################################################################
+	def GetListCtrl (self):
+		'''
+		Used by the ColumnSorterMixin, see wx/lib/mixins/listctrl.py
+		'''
 
-        self.DeleteAllItems()
-
-        idx = 0
-        for (pid, proc) in pydbg.enumerate_processes():
-            # ignore system processes.
-            if pid < 10:
-                continue
-
-            self.InsertStringItem(idx, "")
-            self.SetStringItem(idx, 0, "%d" % pid)
-            self.SetStringItem(idx, 1, proc)
-
-            self.items_sort_map[idx] = (pid, proc)
-            self.SetItemData(idx, idx)
-
-            idx += 1
+		return self
 
 
-    ####################################################################################################################
-    def on_select (self, event):
-        '''
-        '''
+	####################################################################################################################
+	def on_retrieve_list (self, event):
+		pydbg = self.top.main_frame.pydbg
 
-        self.selected_pid  = int(self.GetItem(event.m_itemIndex, 0).GetText())
-        self.selected_proc =     self.GetItem(event.m_itemIndex, 1).GetText()
+		self.DeleteAllItems()
+
+		idx = 0
+		for (pid, proc) in pydbg.enumerate_processes():
+			# ignore system processes.
+			if pid < 10:
+				continue
+
+			self.InsertStringItem(idx, "")
+			self.SetStringItem(idx, 0, "%d" % pid)
+			self.SetStringItem(idx, 1, proc)
+			
+			portslist = pydbg.pid_to_port(pid)
+			ports = ""
+			for (lport, addr, proto) in portslist:
+				ports += addr + ":" + lport + "/" + proto + " "
+			
+			self.SetStringItem(idx, 2, ports)
+
+			self.items_sort_map[idx] = (pid, proc, ports)
+			self.SetItemData(idx, idx)
+
+			idx += 1
+
+	####################################################################################################################
+	def on_select (self, event):
+		'''
+		'''
+
+		self.selected_pid  = int(self.GetItem(event.m_itemIndex, 0).GetText())
+		self.selected_proc =	 self.GetItem(event.m_itemIndex, 1).GetText()
