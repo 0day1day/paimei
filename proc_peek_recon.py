@@ -246,6 +246,8 @@ functions = \
     "wcscpy"     		: {},
 	"wcsncpy"     		: {"size": 3},
 	"CompareStringWrapW": {},
+	"MultiByteToWideChar": {},
+	"WideCharToMultiByte": {}, 
 
 # format strings
 	"printf"       		: {"fs_arg": 1},
