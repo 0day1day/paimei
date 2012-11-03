@@ -236,26 +236,26 @@ def meat_and_potatoes (mysql):
 	functions = \
 	{
 	# insecure by default	
-		"gets"       	    : {}, 
-		"getws"        	    : {}, 
+		"gets"				: {}, 
+		"getws"				: {}, 
 
 	# exec functions	
-		"execl"        		: {"cmd_name": 1}, 
-		"wexecl"      		: {"cmd_name": 1}, 
-		"execv"	      		: {"cmd_name": 1}, 
-		"wexecv"       		: {"cmd_name": 1}, 
-		"WinExec"     		: {"cmd_name": 1}, 
-		"ShellExecute"   	: {},
-		"ShellExecuteEx"   	: {},
+		"execl"				: {"cmd_name": 1}, 
+		"wexecl"			: {"cmd_name": 1}, 
+		"execv"				: {"cmd_name": 1}, 
+		"wexecv"			: {"cmd_name": 1}, 
+		"WinExec"			: {"cmd_name": 1}, 
+		"ShellExecute"		: {},
+		"ShellExecuteEx"	: {},
 		"CreateProcess"		: {"cmd_name": 2},
 		"CreateProcessAsUser": {"cmd_name": 2},
 		"CreateProcessWithLogon" : {"cmd_name": 2},
 
 	# memory copy functions
-		"memcpy"       		: {"size": 3},
-		"wmemcpy"       	: {"size": 3},
+		"memcpy"			: {"size": 3},
+		"wmemcpy"		: {"size": 3},
 		"VirtualAllocEx"	: {"size": 3},
-		"VirtualAlloc"      : {"size": 2},
+		"VirtualAlloc"		: {"size": 2},
 		"VirtualAllocExNuma": {"size": 2},
 		"LocalAlloc"		: {"size": 2},
 		"HeapAlloc"			: {"size": 3},
@@ -330,11 +330,12 @@ def meat_and_potatoes (mysql):
 	for func in functions:
 	
 		# enumerate all possibile suffixes.
-		for suffix in suffixes:
+		for prefix in prefixes:
 		
 			# enumerate all possible prefixes.
-			for prefix in prefixes:
+			for suffix in suffixes:
 				full_name = prefix + func + suffix
+				#ida_log("library %s" % full_name)
 				location  = LocByName(full_name)
 
 				if location == BADADDR:
@@ -345,10 +346,9 @@ def meat_and_potatoes (mysql):
 				for xref in list(CodeRefsTo(location, True)) + list(DataRefsTo(location)):
 					if GetMnem(xref) in ("call", "jmp"):
 						# ensure the xref does not exist within a known library routine.
-						flags = GetFunctionFlags(xref)
-						if flags:
-							if flags & FUNC_LIB:
-								continue
+						#flags = GetFunctionFlags(xref)
+						#if flags:
+						#	if flags & FUNC_LIB: continue
 
 						###
 						### peek a call with format string arguments
@@ -360,9 +360,10 @@ def meat_and_potatoes (mysql):
 
 							# format string must be resolved at runtime.
 							if format_string == BADADDR:
-								ida_log("%08x format string must be resolved at runtime" % xref)
+								ida_log("%08x '%s' format string must be resolved at runtime" % (xref, full_name))
 
 								if not add_recon(mysql, module_id, xref - base_address, 0, full_name, "new"):
+									ida_log("error")
 									return
 
 							# XXX - we have to escape '%' chars here otherwise 'print', which wraps around 'Message()' will
@@ -376,6 +377,7 @@ def meat_and_potatoes (mysql):
 									ida_log("%08x favorable format string found '%s'" % (xref, format_string))
 
 									if not add_recon(mysql, module_id, xref - base_address, token_count(format_string)+fs_arg, "%s - fs: %s" % (full_name, format_string), "new"):
+										ida_log("error")
 										return
 						#
 						# TODO: get cmd_name string
@@ -386,12 +388,14 @@ def meat_and_potatoes (mysql):
 							cmd = get_arg(xref, cmd_name, 'S')
 							
 							if cmd == BADADDR:
-								ida_log("%08x command must be resolved at runtime" % xref)
+								ida_log("%08x '%s' command must be resolved at runtime" % (xref, full_name))
 								if not add_recon(mysql, module_id, xref - base_address, cmd_name, full_name, "new"):
+									ida_log("error")
 									return
 							else:
 								ida_log("%08x found call to '%s' with static command: %d" % (xref, full_name, cmd))
 								if not add_recon(mysql, module_id, xref - base_address, cmd_name, "%s - cmd: %s" % (full_name, cmd_name), "new"):
+									ida_log("error")
 									return
 						#
 						# get static size value
@@ -399,15 +403,17 @@ def meat_and_potatoes (mysql):
 						elif functions[func].has_key("size"):
 							size_arg = functions[func]["size"]
 							
-							size = get_arg(xref, size_arg, 'I')		
+							size = get_arg(xref, size_arg, 'I')
 
 							if size == BADADDR:
-								ida_log("%08x size must be resolved at runtime" % xref)
+								ida_log("%08x '%s' size must be resolved at runtime" % (xref, full_name))
 								if not add_recon(mysql, module_id, xref - base_address, size_arg, full_name, "new"):
+									ida_log("error")
 									return
 							else:
 								ida_log("%08x found call to '%s' with static size: %d" % (xref, full_name, size))
 								if not add_recon(mysql, module_id, xref - base_address, size_arg, "%s - size: %d" % (full_name, size), "new"):
+									ida_log("error")
 									return
 						
 						###
@@ -415,9 +421,10 @@ def meat_and_potatoes (mysql):
 						###
 
 						else:
-							ida_log("%08x found call to '%s'" % (xref, func))
+							ida_log("%08x found call to '%s'" % (xref, full_name))
 
-							if not add_recon(mysql, module_id, xref - base_address, 0, full_name, "new"):
+							if not add_recon(mysql, module_id, xref - base_address, 0, "%s" % (full_name), "new"):
+								ida_log("error")
 								return
 
 	ida_log("done.")

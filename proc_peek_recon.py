@@ -313,7 +313,7 @@ for func in functions:
 
 						# format string must be resolved at runtime.
 						if format_string == BADADDR:
-							ida_log("%08x format string must be resolved at runtime" % xref)
+							ida_log("%08x '%s' format string must be resolved at runtime" % (xref, full_name))
 							write_line("%08x: %s" % (xref, full_name))
 
 						# XXX - we have to escape '%' chars here otherwise 'print', which wraps around 'Message()' will
@@ -327,7 +327,7 @@ for func in functions:
 								ida_log("%08x favorable format string found '%s'" % (xref, format_string))
 								write_line("%08x:%d:%s %s" % (xref, token_count(format_string), full_name, format_string))
 					#
-					# TODO: get cmd_name string
+					# get cmd_name string
 					#
 					elif functions[func].has_key("cmd_name"):
 						cmd_name = functions[func]["cmd_name"]
@@ -335,7 +335,7 @@ for func in functions:
 						cmd = get_arg(xref, cmd_name, 'S')
 						
 						if cmd == BADADDR:
-							ida_log("%08x command must be resolved at runtime" % xref)
+							ida_log("%08x '%s' command must be resolved at runtime" % (xref, full_name))
 							write_line("%08x: %s" % (xref, full_name))
 						else:
 							ida_log("%08x found call to '%s' with static command: %d" % (xref, full_name, cmd))
@@ -347,10 +347,10 @@ for func in functions:
 					elif functions[func].has_key("size"):
 						size_arg = functions[func]["size"]
 						
-						size = get_arg(xref, size_arg, 'I')		
+						size = get_arg(xref, size_arg, 'I')
 
 						if size == BADADDR:
-							ida_log("%08x size must be resolved at runtime" % xref)
+							ida_log("%08x '%s' size must be resolved at runtime" % (xref, full_name))
 							write_line("%08x: %s" % (xref, full_name))
 						else:
 							ida_log("%08x found call to '%s' with static size: %d" % (xref, full_name, size))
