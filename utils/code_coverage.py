@@ -40,13 +40,13 @@ class __code_coverage_struct__:
     is_function = 0
 
     # registers and stack values.
-    eax = ebx = ecx = edx = edi = esi = ebp = esp = esp_4 = esp_8 = esp_c = esp_10 = 0
+    eax = ebx = ecx = edx = edi = esi = ebp = esp = esp_4 = esp_8 = esp_c = esp_10 = esp_14 = esp_18 = esp_1c = esp_20 = 0
 
     # register dereferences.
     eax_deref = ebx_deref = ecx_deref = edx_deref = edi_deref = esi_deref = ebp_deref = ""
 
     # stack dereferences.
-    esp_deref = esp_4_deref = esp_8_deref = esp_c_deref = esp_10_deref = ""
+    esp_deref = esp_4_deref = esp_8_deref = esp_c_deref = esp_10_deref = esp_14_deref = esp_18_deref = esp_1c_deref = esp_20_deref = ""
 
 
 class code_coverage:
@@ -112,7 +112,7 @@ class code_coverage:
         ccs.base        = base
         ccs.is_function = is_function
 
-        context_list = pydbg.dump_context_list(stack_depth=4, print_dots=True)
+        context_list = pydbg.dump_context_list(stack_depth=8, print_dots=True)
 
         if self.heavy:
             ccs.eax    = pydbg.context.Eax
@@ -125,8 +125,12 @@ class code_coverage:
             ccs.esp    = pydbg.context.Esp
             ccs.esp_4  = context_list["esp+04"]["value"]
             ccs.esp_8  = context_list["esp+08"]["value"]
-            ccs.esp_C  = context_list["esp+0c"]["value"]
+            ccs.esp_c  = context_list["esp+0c"]["value"]
             ccs.esp_10 = context_list["esp+10"]["value"]
+            ccs.esp_14  = context_list["esp+14"]["value"]
+            ccs.esp_18  = context_list["esp+18"]["value"]
+            ccs.esp_1c  = context_list["esp+1c"]["value"]
+            ccs.esp_20 = context_list["esp+20"]["value"]
 
             ccs.eax_deref    = context_list["eax"]
             ccs.ebx_deref    = context_list["ebx"]
@@ -140,6 +144,10 @@ class code_coverage:
             ccs.esp_8_deref  = context_list["esp+08"]["desc"]
             ccs.esp_c_deref  = context_list["esp+0c"]["desc"]
             ccs.esp_10_deref = context_list["esp+10"]["desc"]
+            ccs.esp_14_deref  = context_list["esp+14"]["desc"]
+            ccs.esp_18_deref  = context_list["esp+18"]["desc"]
+            ccs.esp_1c_deref  = context_list["esp+1c"]["desc"]
+            ccs.esp_20_deref = context_list["esp+20"]["desc"]
 
         if not self.hits.has_key(ccs.eip):
             self.hits[ccs.eip] = []
@@ -213,7 +221,7 @@ class code_coverage:
 
         @type  file_name:   String
         @param file_name:   File name to export to
-
+ 
         @rtype:             code_coverage
         @return:            self
         '''
@@ -264,6 +272,10 @@ class code_coverage:
                 sql += "     esp_8        = '%d'," % ccs.esp_8
                 sql += "     esp_c        = '%d'," % ccs.esp_c
                 sql += "     esp_10       = '%d'," % ccs.esp_10
+                sql += "     esp_14        = '%d'," % ccs.esp_14
+                sql += "     esp_18        = '%d'," % ccs.esp_18
+                sql += "     esp_1c        = '%d'," % ccs.esp_1c
+                sql += "     esp_20       = '%d'," % ccs.esp_20
                 sql += "     eax_deref    = '%s'," % ccs.eax_deref.replace("\\", "\\\\").replace("'", "\\'")
                 sql += "     ebx_deref    = '%s'," % ccs.ebx_deref.replace("\\", "\\\\").replace("'", "\\'")
                 sql += "     ecx_deref    = '%s'," % ccs.ecx_deref.replace("\\", "\\\\").replace("'", "\\'")
@@ -276,6 +288,10 @@ class code_coverage:
                 sql += "     esp_8_deref  = '%s'," % ccs.esp_8_deref.replace("\\", "\\\\").replace("'", "\\'")
                 sql += "     esp_c_deref  = '%s'," % ccs.esp_c_deref.replace("\\", "\\\\").replace("'", "\\'")
                 sql += "     esp_10_deref = '%s'," % ccs.esp_10_deref.replace("\\", "\\\\").replace("'", "\\'")
+                sql += "     esp_14_deref  = '%s'," % ccs.esp_14_deref.replace("\\", "\\\\").replace("'", "\\'")
+                sql += "     esp_18_deref  = '%s'," % ccs.esp_18_deref.replace("\\", "\\\\").replace("'", "\\'")
+                sql += "     esp_1c_deref  = '%s'," % ccs.esp_1c_deref.replace("\\", "\\\\").replace("'", "\\'")
+                sql += "     esp_20_deref = '%s'," % ccs.esp_20_deref.replace("\\", "\\\\").replace("'", "\\'")
                 sql += "     is_function  = '%d'," % ccs.is_function
                 sql += "     module       = '%s'," % ccs.module
                 sql += "     base         = '%d' " % ccs.base
@@ -361,8 +377,12 @@ class code_coverage:
                 ccs.esp    = hit["esp"]
                 ccs.esp_4  = hit["esp_4"]
                 ccs.esp_8  = hit["esp_8"]
-                ccs.esp_C  = hit["esp_c"]
+                ccs.esp_c  = hit["esp_c"]
                 ccs.esp_10 = hit["esp_10"]
+                ccs.esp_14  = hit["esp_14"]
+                ccs.esp_18  = hit["esp_18"]
+                ccs.esp_1c  = hit["esp_1c"]
+                ccs.esp_20 = hit["esp_20"]
 
                 ccs.eax_deref    = hit["eax_deref"]
                 ccs.ebx_deref    = hit["ebx_deref"]
@@ -374,9 +394,12 @@ class code_coverage:
                 ccs.esp_deref    = hit["esp_deref"]
                 ccs.esp_4_deref  = hit["esp_4_deref"]
                 ccs.esp_8_deref  = hit["esp_8_deref"]
-                ccs.esp_C_deref  = hit["esp_c_deref"]
+                ccs.esp_c_deref  = hit["esp_c_deref"]
                 ccs.esp_10_deref = hit["esp_10_deref"]
-
+                ccs.esp_14_deref  = hit["esp_14_deref"]
+                ccs.esp_18_deref  = hit["esp_18_deref"]
+                ccs.esp_1c_deref  = hit["esp_1c_deref"]
+                ccs.esp_20_deref = hit["esp_20_deref"]
             if not self.hits.has_key(ccs.eip):
                 self.hits[ccs.eip] = []
 

@@ -194,6 +194,11 @@ class HitsListCtrl (wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
         context_dump += "+08: %08x (%10d) -> %s\n" % (hit["esp_8"],  hit["esp_8"],  hit["esp_8_deref"])
         context_dump += "+0C: %08x (%10d) -> %s\n" % (hit["esp_c"],  hit["esp_c"],  hit["esp_c_deref"])
         context_dump += "+10: %08x (%10d) -> %s\n" % (hit["esp_10"], hit["esp_10"], hit["esp_10_deref"])
+        context_dump += "+14: %08x (%10d) -> %s\n" % (hit["esp_14"],  hit["esp_14"],  hit["esp_14_deref"])
+        context_dump += "+18: %08x (%10d) -> %s\n" % (hit["esp_18"],  hit["esp_18"],  hit["esp_18_deref"])
+        context_dump += "+1C: %08x (%10d) -> %s\n" % (hit["esp_1c"],  hit["esp_1c"],  hit["esp_1c_deref"])
+        context_dump += "+20: %08x (%10d) -> %s\n" % (hit["esp_20"], hit["esp_20"], hit["esp_20_deref"])
+
 
         self.top.hit_details.SetValue(context_dump)
 

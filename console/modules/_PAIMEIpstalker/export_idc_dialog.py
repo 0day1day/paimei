@@ -200,6 +200,11 @@ class export_idc_dialog (wx.Dialog):
                 comment += "+08: %08x (%10d) -> %s\n" % (hit["esp_8"],  hit["esp_8"],  hit["esp_8_deref"])
                 comment += "+0C: %08x (%10d) -> %s\n" % (hit["esp_c"],  hit["esp_c"],  hit["esp_c_deref"])
                 comment += "+10: %08x (%10d) -> %s"   % (hit["esp_10"], hit["esp_10"], hit["esp_10_deref"])
+                comment += "+14: %08x (%10d) -> %s\n" % (hit["esp_14"],  hit["esp_14"],  hit["esp_14_deref"])
+                comment += "+18: %08x (%10d) -> %s\n" % (hit["esp_18"],  hit["esp_18"],  hit["esp_18_deref"])
+                comment += "+1C: %08x (%10d) -> %s\n" % (hit["esp_1c"],  hit["esp_1c"],  hit["esp_1c_deref"])
+                comment += "+20: %08x (%10d) -> %s"   % (hit["esp_20"], hit["esp_20"], hit["esp_20_deref"])
+
 
                 comment = comment.replace('"', '\\"')
 
@@ -337,9 +342,9 @@ static find_block_end (current_ea)
 // return the lower case version of 'str'.
 static tolower (str)
 {
-    auto i, c, new;
+    auto i, c, nu;
 
-    new = "";
+    nu = "";
 
     for (i = 0; i < strlen(str); i++)
     {
@@ -348,14 +353,14 @@ static tolower (str)
         if (ord(c) >= 0x41 && ord(c) <= 0x5a)
             c = form("%s", ord(c) + 32);
 
-        new = new + c;
+        nu = nu + c;
     }
 
-    return new;
+    return nu;
 }
 
 // return the blended color between 'old' and 'new'.
-static blend_color (old, new)
+static blend_color (old, nu)
 {
     auto r, g, b, bold, gold, rold, bnew, gnew, rnew;
 
@@ -363,9 +368,9 @@ static blend_color (old, new)
     gold = (old & 0x00FF00) >> 8;
     rold = (old & 0x0000FF);
 
-    bnew = (new & 0xFF0000) >> 16;
-    gnew = (new & 0x00FF00) >> 8;
-    rnew = (new & 0x0000FF);
+    bnew = (nu & 0xFF0000) >> 16;
+    gnew = (nu & 0x00FF00) >> 8;
+    rnew = (nu & 0x0000FF);
 
     b    = (bold + (bnew - bold) / 2) & 0xFF;
     g    = (gold + (gnew - gold) / 2) & 0xFF;
